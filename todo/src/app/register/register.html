@@ -1,0 +1,39 @@
+<div class="auth-page">
+  <div class="glass auth-card">
+    <div class="auth-header">
+      <div class="auth-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--primary)"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line></svg>
+      </div>
+      <h2>Create an Account</h2>
+      <p>Start organizing your work efficiently today.</p>
+    </div>
+
+    <form (ngSubmit)="register()" #registerForm="ngForm">
+      <div class="form-group">
+        <label for="name">Full Name</label>
+        <input id="name" name="name" required [(ngModel)]="user.name" placeholder="John Doe" class="form-control">
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email address</label>
+        <input id="email" name="email" type="email" required [(ngModel)]="user.email" placeholder="name@company.com" class="form-control">
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" required [(ngModel)]="user.password" placeholder="Create a strong password" class="form-control">
+      </div>
+
+      <div class="form-group">
+        <label for="confirm">Confirm Password</label>
+        <input id="confirm" name="confirm" type="password" required [(ngModel)]="confirmPassword" placeholder="Confirm your password" class="form-control">
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-block" [disabled]="registerForm.invalid">Sign Up</button>
+    </form>
+
+    <div class="auth-footer">
+      Already have an account? <a routerLink="/login">Log in here</a>
+    </div>
+  </div>
+</div>

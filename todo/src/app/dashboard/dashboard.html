@@ -1,0 +1,188 @@
+<div class="dashboard-container">
+
+  <!-- Welcome Header -->
+  <section class="welcome-section">
+    <div class="welcome-left">
+      <p class="welcome-date">{{ currentDate }}</p>
+      <h1>{{ greeting }}, <span class="gradient-text">{{ userName }}</span> 👋</h1>
+      <p class="welcome-subtitle">Here's what's happening with your tasks today.</p>
+    </div>
+    <div class="welcome-right">
+      <button class="btn btn-primary" (click)="isAddingTask = true" *ngIf="!isAddingTask">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        New Task
+      </button>
+    </div>
+  </section>
+
+  <!-- Stats Cards -->
+  <section class="stats-grid" *ngIf="!loading">
+    <div class="stat-card glass">
+      <div class="stat-icon stat-icon-total">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+      </div>
+      <div class="stat-info">
+        <span class="stat-value">{{ totalTasks }}</span>
+        <span class="stat-label">Total Tasks</span>
+      </div>
+    </div>
+    <div class="stat-card glass">
+      <div class="stat-icon stat-icon-todo">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle></svg>
+      </div>
+      <div class="stat-info">
+        <span class="stat-value">{{ todoCount }}</span>
+        <span class="stat-label">To Do</span>
+      </div>
+    </div>
+    <div class="stat-card glass">
+      <div class="stat-icon stat-icon-progress">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+      </div>
+      <div class="stat-info">
+        <span class="stat-value">{{ progressCount }}</span>
+        <span class="stat-label">In Progress</span>
+      </div>
+    </div>
+    <div class="stat-card glass">
+      <div class="stat-icon stat-icon-done">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+      </div>
+      <div class="stat-info">
+        <span class="stat-value">{{ completionRate }}%</span>
+        <span class="stat-label">Completed</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Error Banner -->
+  <div class="error-banner" *ngIf="error">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+    <span>{{ error }}</span>
+    <button class="btn btn-secondary" style="margin-left: auto; padding: 0.4rem 0.8rem; font-size: 0.85rem" (click)="loadTasks()">Retry</button>
+  </div>
+
+  <!-- Add Task Panel -->
+  <div class="add-task-panel glass" *ngIf="isAddingTask">
+    <h3>Create New Task</h3>
+    <div class="add-task-row">
+      <input
+        type="text"
+        class="form-control"
+        [(ngModel)]="newTaskTitle"
+        placeholder="What needs to be done?"
+        (keyup.enter)="addTask()"
+        autofocus
+      />
+      <button class="btn btn-primary" (click)="addTask()" [disabled]="!newTaskTitle.trim()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+        Save
+      </button>
+      <button class="btn btn-secondary" (click)="cancelAddTask()">Cancel</button>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-state" *ngIf="loading">
+    <div class="spinner"></div>
+    <p>Loading your tasks...</p>
+  </div>
+
+  <!-- Kanban Board -->
+  <div class="kanban-board" *ngIf="!loading">
+
+    <!-- TODO Column -->
+    <div class="kanban-col">
+      <div class="col-header">
+        <span class="status-indicator status-todo"></span>
+        <h3>To Do</h3>
+        <span class="count">{{ todoCount }}</span>
+      </div>
+      <div class="task-cards">
+        <div class="task-card glass" *ngFor="let task of getTasksByStatus('todo')">
+          <div class="task-card-body">
+            <h4>{{ task.title }}</h4>
+            <div class="task-actions">
+              <button class="action-btn action-progress" title="Start" (click)="updateTaskStatus(task, 'in-progress')">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+              </button>
+              <button class="action-btn action-done" title="Complete" (click)="updateTaskStatus(task, 'done')">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              </button>
+              <button class="action-btn action-delete" title="Delete" (click)="deleteTask(task)">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="empty-state" *ngIf="todoCount === 0">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom: 0.75rem; opacity: 0.5;"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path><path d="M9 12l2 2 4-4"></path></svg>
+          <p>All caught up!</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- IN PROGRESS Column -->
+    <div class="kanban-col">
+      <div class="col-header">
+        <span class="status-indicator status-progress"></span>
+        <h3>In Progress</h3>
+        <span class="count">{{ progressCount }}</span>
+      </div>
+      <div class="task-cards">
+        <div class="task-card glass task-card-active" *ngFor="let task of getTasksByStatus('in-progress')">
+          <div class="task-card-body">
+            <h4>{{ task.title }}</h4>
+            <div class="progress-bar-mini">
+              <div class="progress-fill"></div>
+            </div>
+            <div class="task-actions">
+              <button class="action-btn action-back" title="Back to To Do" (click)="updateTaskStatus(task, 'todo')">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
+              </button>
+              <button class="action-btn action-done" title="Complete" (click)="updateTaskStatus(task, 'done')">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              </button>
+              <button class="action-btn action-delete" title="Delete" (click)="deleteTask(task)">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="empty-state" *ngIf="progressCount === 0">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom: 0.75rem; opacity: 0.5;"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+          <p>Nothing in progress</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- DONE Column -->
+    <div class="kanban-col">
+      <div class="col-header">
+        <span class="status-indicator status-done"></span>
+        <h3>Done</h3>
+        <span class="count">{{ doneCount }}</span>
+      </div>
+      <div class="task-cards">
+        <div class="task-card glass done-card" *ngFor="let task of getTasksByStatus('done')">
+          <div class="task-card-body">
+            <h4 class="strikethrough">{{ task.title }}</h4>
+            <div class="task-actions">
+              <button class="action-btn action-back" title="Reopen" (click)="updateTaskStatus(task, 'todo')">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>
+              </button>
+              <button class="action-btn action-delete" title="Delete" (click)="deleteTask(task)">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="empty-state" *ngIf="doneCount === 0">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom: 0.75rem; opacity: 0.5;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+          <p>No completed tasks yet</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

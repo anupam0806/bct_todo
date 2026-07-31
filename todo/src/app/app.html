@@ -1,0 +1,26 @@
+<nav class="navbar">
+    <div class="logo">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--primary)"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path><path d="M9 12l2 2 4-4"></path></svg>
+      Todolist
+    </div>
+    <button class="mobile-toggle" (click)="toggleMenu()" aria-label="Toggle menu">☰</button>
+
+    <ul class="nav-links" [class.open]="isMenuOpen()">
+        <li><a routerLink="/home" routerLinkActive="active">Home</a></li>
+
+        <ng-container *ngIf="!isLoggedIn()">
+            <li><a routerLink="/about" routerLinkActive="active">About</a></li>
+            <li><a routerLink="/login" routerLinkActive="active">Login</a></li>
+            <li><a routerLink="/register" class="btn btn-primary" style="padding: 0.4rem 1rem; margin-left: 0.5rem;">Get Started</a></li>
+        </ng-container>
+
+        <ng-container *ngIf="isLoggedIn()">
+            <li><a routerLink="/dashboard" routerLinkActive="active">Dashboard</a></li>
+            <li><a href="#" (click)="logout(); $event.preventDefault()">Logout</a></li>
+        </ng-container>
+    </ul>
+</nav>
+
+<main class="container">
+    <router-outlet></router-outlet>
+</main>
