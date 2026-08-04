@@ -6,8 +6,7 @@ const connectDB = async () => {
     console.log(`MongoDB Connected: ${conn.connection.host}`);
   } catch (error) {
     console.error("Error connecting to MongoDB:", error);
-    // Don't exit the process during development when the DB is unreachable.
-    // This allows the server to start for testing endpoints that don't require DB.
+    process.exit(1); // Exit process with failure to prevent infinite buffering of DB queries
   }
 };
 

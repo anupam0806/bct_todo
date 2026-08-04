@@ -2,7 +2,8 @@ const Task = require("../models/task.model");
 
 const getTasks = async (req, res) => {
     try {
-        const tasks = await Task.find({ user: req.userId }).sort({ createdAt: -1 });
+        const tasks = await Task.find({ userId: req.user._id }).sort({ createdAt: -1 });
+        console.log("Fetched tasks for user:", req.user._id.toString()); // Temporary log
         res.status(200).json(tasks);
     } catch (error) {
         res.status(500).json({ message: "Server error", error: error.message });
@@ -20,9 +21,10 @@ const createTask = async (req, res) => {
         const task = new Task({
             title,
             status: status || "todo",
-            user: req.userId,
+            userId: req.user._id,
         });
 
+        console.log("Saving new task with userId:", req.user._id.toString()); // Temporary log
         await task.save();
         res.status(201).json(task);
     } catch (error) {
@@ -35,10 +37,14 @@ const updateTask = async (req, res) => {
         const { id } = req.params;
         const { title, status } = req.body;
 
-        const task = await Task.findOne({ _id: id, user: req.userId });
+        const task = await Task.findById(id);
 
         if (!task) {
             return res.status(404).json({ message: "Task not found" });
+        }
+        
+        if (task.userId.toString() !== req.user._id.toString()) {
+            return res.status(403).json({ message: "Forbidden: Task belongs to another user" });
         }
 
         if (title !== undefined) task.title = title;
@@ -55,11 +61,17 @@ const deleteTask = async (req, res) => {
     try {
         const { id } = req.params;
         
-        const task = await Task.findOneAndDelete({ _id: id, user: req.userId });
+        const task = await Task.findById(id);
 
         if (!task) {
             return res.status(404).json({ message: "Task not found" });
         }
+        
+        if (task.userId.toString() !== req.user._id.toString()) {
+            return res.status(403).json({ message: "Forbidden: Task belongs to another user" });
+        }
+
+        await Task.findByIdAndDelete(id);
 
         res.status(200).json({ message: "Task deleted successfully" });
     } catch (error) {
