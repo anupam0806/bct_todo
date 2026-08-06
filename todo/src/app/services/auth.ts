@@ -25,7 +25,8 @@ export class AuthService {
 
   getToken(): string | null {
     if (isPlatformBrowser(this.platformId)) {
-      return localStorage.getItem('token');
+      const token = localStorage.getItem('token');
+      return token ? token.trim() : null;
     }
     return null;
   }
