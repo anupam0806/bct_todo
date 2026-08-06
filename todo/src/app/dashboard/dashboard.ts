@@ -63,14 +63,16 @@ export class Dashboard implements OnInit {
     this.error = null;
     this.taskService.getTasks().subscribe({
       next: (tasks) => {
+        console.log('Tasks loaded successfully:', tasks);
         this.tasks = tasks || [];
         this.loading = false;
       },
       error: (err) => {
-        console.error('Failed to load tasks', err);
+        console.error('Failed to load tasks:', err);
         if (err.status === 401) {
           this.authService.logout();
           this.router.navigate(['/login']);
+          this.loading = false;
           return;
         }
         this.error = 'Unable to fetch tasks. Please check your connection.';
