@@ -55,7 +55,9 @@ export class Dashboard implements OnInit {
       day: 'numeric'
     });
 
-    this.loadTasks();
+    if (isPlatformBrowser(this.platformId)) {
+      this.loadTasks();
+    }
   }
 
   loadTasks() {
