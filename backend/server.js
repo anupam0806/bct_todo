@@ -26,11 +26,11 @@ const startServer = async () => {
   try {
     await connectDB(); // Wait for MongoDB connection
 
-    app.listen(PORT, () => {
-      console.log(
-        `Server is running in ${process.env.NODE_ENV || "development"} mode on port ${PORT}`
-      );
-    });
+    app.listen(PORT, '0.0.0.0', () => {
+       console.log(
+         `Server is running in ${process.env.NODE_ENV || "development"} mode on port ${PORT}`
+       );
+     });
   } catch (error) {
     console.error("Failed to start server:", error.message);
     process.exit(1);
