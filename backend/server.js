@@ -29,13 +29,15 @@ const PORT = process.env.PORT || 5000;
 
 const startServer = async () => {
   try {
-    await connectDB(); // Wait for MongoDB connection
-
+    // Start server first so Railway sees it as healthy immediately
     app.listen(PORT, '0.0.0.0', () => {
-       console.log(
-         `Server is running in ${process.env.NODE_ENV || "development"} mode on port ${PORT}`
-       );
-     });
+      console.log(
+        `Server is running in ${process.env.NODE_ENV || "development"} mode on port ${PORT}`
+      );
+    });
+
+    // Connect to DB in background
+    connectDB().catch(err => console.error("MongoDB background connection error:", err.message));
   } catch (error) {
     console.error("Failed to start server:", error.message);
     process.exit(1);
