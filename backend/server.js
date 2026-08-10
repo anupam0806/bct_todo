@@ -25,23 +25,18 @@ app.get("/", (req, res) => {
   res.send("API is running...");
 });
 
-const PORT = process.env.PORT || 5000;
+// Connect to DB
+connectDB().catch(err => console.error("MongoDB connection error:", err.message));
 
-const startServer = async () => {
-  try {
-    // Start server first so Railway sees it as healthy immediately
-    app.listen(PORT, '0.0.0.0', () => {
-      console.log(
-        `Server is running in ${process.env.NODE_ENV || "development"} mode on port ${PORT}`
-      );
-    });
+// For Vercel serverless
+module.exports = app;
 
-    // Connect to DB in background
-    connectDB().catch(err => console.error("MongoDB background connection error:", err.message));
-  } catch (error) {
-    console.error("Failed to start server:", error.message);
-    process.exit(1);
-  }
-};
-
-startServer();
+// For local development
+if (require.main === module) {
+  const PORT = process.env.PORT || 5000;
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(
+      `Server is running in ${process.env.NODE_ENV || "development"} mode on port ${PORT}`
+    );
+  });
+}
