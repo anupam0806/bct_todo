@@ -1,6 +1,7 @@
 const User = require("../models/user.model");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const Task = require("../models/task.model");
 
 const register = async (req, res) => {
     try {
@@ -23,6 +24,13 @@ const register = async (req, res) => {
         });
 
         await user.save();
+
+        const welcomeTask = new Task({
+            title: "Welcome to your new workspace! 🎉",
+            status: "todo",
+            userId: user._id,
+        });
+        await welcomeTask.save();
 
         res.status(201).json({
             message: "User registered successfully",
