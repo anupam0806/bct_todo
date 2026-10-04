@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TaskService, Task } from '../services/task.service';
 import { finalize } from 'rxjs/operators';
+import { AuthService } from '../services/auth';
 
 @Component({
   selector: 'app-dashboard',
