@@ -3,7 +3,7 @@ const Task = require("../models/task.model");
 const getTasks = async (req, res) => {
     try {
         const tasks = await Task.find({ userId: req.user._id }).sort({ createdAt: -1 });
-        console.log("Fetched tasks for user:", req.user._id.toString()); // Temporary log
+        // Num of fetched tasks: removed debug log
         res.status(200).json(tasks);
     } catch (error) {
         res.status(500).json({ message: "Server error", error: error.message });
@@ -24,7 +24,7 @@ const createTask = async (req, res) => {
             userId: req.user._id,
         });
 
-        console.log("Saving new task with userId:", req.user._id.toString()); // Temporary log
+        // Number of tasks returned: log removed
         await task.save();
         res.status(201).json(task);
     } catch (error) {

@@ -3,7 +3,7 @@ const User = require("../models/user.model");
 
 const authMiddleware = async (req, res, next) => {
     try {
-        console.log("Incoming Authorization header:", req.header("Authorization")); // Temporary debugging log
+        // Incoming Authorization header: omitted for performance
 
         const authHeader = req.header("Authorization");
         
@@ -27,7 +27,7 @@ const authMiddleware = async (req, res, next) => {
         }
         
         req.user = user;
-        console.log("req.user assigned:", req.user._id.toString()); // Temporary debugging log
+        // req.user assigned: omitted for performance
         
         next();
     } catch (error) {

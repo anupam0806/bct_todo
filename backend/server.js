@@ -32,10 +32,7 @@ const connectToDB = async () => {
 };
 
 // Connect to DB on each request (serverless-friendly)
-app.use(async (req, res, next) => {
-  await connectToDB();
-  next();
-});
+// No per-request DB connection – connection established at startup
 
 // Routes
 app.use("/api/auth", require("./routes/auth.routes"));

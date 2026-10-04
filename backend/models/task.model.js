@@ -18,9 +18,12 @@ const taskSchema = new mongoose.Schema(
             required: true,
         }
     },
-    {
-        timestamps: true,
-    }
+        {
+            timestamps: true,
+            indexes: [
+                { fields: { userId: 1 } }
+            ]
+        }
 );
 
 module.exports = mongoose.model("Task", taskSchema);
