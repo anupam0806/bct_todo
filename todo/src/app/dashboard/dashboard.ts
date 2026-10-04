@@ -165,6 +165,26 @@ export class Dashboard implements OnInit {
     this.newTaskTitle = '';
   }
 
+  get totalTasks(): number {
+    return this.tasks.length;
+  }
+
+  get todoCount(): number {
+    return this.tasks.filter(t => t.status === 'todo').length;
+  }
+
+  get progressCount(): number {
+    return this.tasks.filter(t => t.status === 'in-progress').length;
+  }
+
+  get doneCount(): number {
+    return this.tasks.filter(t => t.status === 'done').length;
+  }
+
+  getTasksByStatus(status: string): Task[] {
+    return this.tasks.filter(t => t.status === status);
+  }
+
   logout() {
     this.authService.logout();
     this.router.navigate(['/login']);
