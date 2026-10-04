@@ -1,14 +1,14 @@
-import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
+import { Component, OnInit, Inject, PLATFORM_ID, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TaskService, Task } from '../services/task.service';
-import { AuthService } from '../services/auth';
+import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css',
 })
@@ -63,40 +63,49 @@ export class Dashboard implements OnInit {
   loadTasks() {
     this.loading = true;
     this.error = null;
-    this.taskService.getTasks().subscribe({
-      next: (tasks) => {
-        this.tasks = tasks || [];
-        this.loading = false;
-      },
-      error: (err) => {
-        console.error('Full Error Object:', err);
-        this.loading = false;
-        if (err.status === 0) {
-          this.error = 'Network error: Backend is unreachable. Please check your internet or VPN.';
-        } else if (err.status === 401) {
-          this.authService.logout();
-          this.router.navigate(['/login']);
-          this.error = 'Session expired. Please login again.';
-        } else {
-          this.error = `Server Error (${err.status}): Unable to fetch tasks.`;
+    this.taskService.getTasks()
+      .pipe(
+        finalize(() => { this.loading = false; })
+      )
+      .subscribe({
+        next: (tasks) => {
+          this.tasks = tasks || [];
+          this.filterByStatus();
+          this.updateCounters();
+        },
+        error: (err) => {
+          console.error('Failed to fetch tasks', err);
+          if (err.status === 0) {
+            this.error = 'Network error: Backend is unreachable.';
+          } else if (err.status === 401 || err.status === 403) {
+            this.authService.logout();
+            this.router.navigate(['/login']);
+            this.error = 'Session expired. Please login again.';
+          } else {
+            this.error = `Server Error (${err.status}): Unable to fetch tasks.`;
+          }
         }
-      }
-    });
+      });
   }
 
   // Stats
-  get totalTasks(): number { return this.tasks.length; }
-  get todoCount(): number { return this.tasks.filter(t => t.status === 'todo').length; }
-  get progressCount(): number { return this.tasks.filter(t => t.status === 'in-progress').length; }
-  get doneCount(): number { return this.tasks.filter(t => t.status === 'done').length; }
+  tc = { total: 0, todo: 0, inProgress: 0, done: 0 };
   get completionRate(): number {
-    if (this.totalTasks === 0) return 0;
-    return Math.round((this.doneCount / this.totalTasks) * 100);
+    if (this.tc.total === 0) return 0;
+    return Math.round((this.tc.done / this.tc.total) * 100);
   }
 
-  getTasksByStatus(status: 'todo' | 'in-progress' | 'done'): Task[] {
-    return this.tasks.filter(t => t.status === status);
+  filteredTasks: {todo: Task[];inProgress: Task[];done: Task[]} = {todo: [],inProgress: [],done: []};
+  // No loadTasks implementation here – removed duplicate
+  filterByStatus(){
+    this.filteredTasks.todo = this.tasks.filter(t=>t.status==='todo');
+    this.filteredTasks.inProgress = this.tasks.filter(t=>t.status==='in-progress');
+    this.filteredTasks.done = this.tasks.filter(t=>t.status==='done');
   }
+  updateCounters(){this.tc.total=this.tasks.length;
+    this.tc.todo=this.filteredTasks.todo.length;
+    this.tc.inProgress=this.filteredTasks.inProgress.length;
+    this.tc.done=this.filteredTasks.done.length;}
 
   addTask() {
     if (!this.newTaskTitle.trim()) return;
