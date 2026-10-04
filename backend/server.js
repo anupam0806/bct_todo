@@ -21,18 +21,19 @@ app.use(express.json());
 let isConnected = false;
 
 const connectToDB = async () => {
-  if (!isConnected && process.env.MONGO_URI) {
-    try {
-      await connectDB();
-      isConnected = true;
-    } catch (err) {
-      console.error("MongoDB connection error:", err.message);
-    }
-  }
+    // No-op, replaced by connectDB middleware
 };
 
-// Connect to DB on each request (serverless-friendly)
-// No per-request DB connection – connection established at startup
+// Ensure database connection before handling requests
+app.use(async (req, res, next) => {
+    try {
+        await connectDB();
+        next();
+    } catch (err) {
+        console.error("Database connection error:", err);
+        res.status(500).send("Database connection error");
+    }
+});
 
 // Routes
 app.use("/api/auth", require("./routes/auth.routes"));
