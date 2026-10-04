@@ -14,7 +14,7 @@ export class App {
   menuOpen = false;
 private authService = inject(AuthService);
 private router = inject(Router);
-import { ChangeDetectionStrategy } from '@angular/core';
+
 
   toggleMenu() {
     this.menuOpen = !this.menuOpen;
