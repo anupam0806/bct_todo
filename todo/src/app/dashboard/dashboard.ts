@@ -4,13 +4,14 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TaskService, Task } from '../services/task.service';
 import { finalize } from 'rxjs/operators';
-import { FormsModule } from '@angular/forms';
 import { AuthService } from '../services/auth';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
   imports: [CommonModule, FormsModule],
+  templateUrl: './dashboard.html',
+  styleUrl: './dashboard.css'
 })
 export class Dashboard implements OnInit {
   tasks: Task[] = [];
